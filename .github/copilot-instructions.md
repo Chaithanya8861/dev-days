@@ -12,6 +12,19 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 - Always use absolute paths when running scripts and BASH commands
 - **NEVER commit or push to main automatically unless explicitly instructed to do so**
 
+### Path-specific instructions
+
+Before modifying a file, read every applicable instruction file in `.github/instructions/`. These files are matched by their `applyTo` patterns:
+
+- `astro.instructions.md` — `**/*.astro`
+- `drizzle.instructions.md` — `db/**/*.ts`, `src/lib/*.ts`
+- `playwright.instructions.md` — `**/*.spec.ts`
+- `style.instructions.md` — `**/*.{astro,css}`
+- `unit-tests.instructions.md` — `**/*.test.ts`
+- `ui.instructions.md` — shared UI component and accessibility guidance
+
+When multiple instruction files apply, follow all of them. Re-read the relevant instructions before making changes if the task scope changes.
+
 ## Code standards
 
 ### Required Before Each Commit
@@ -88,6 +101,7 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 
 The application lives at the repository root:
 
+- `.github/instructions/`: path-specific Astro, data-layer, styling, UI, unit-test, and Playwright guidance
 - `db/`: Drizzle schema, migrations, transforms, seed, and `games.csv`
 - `src/lib/`: Node SQLite client (`db.ts`) and data-access helpers (`games.ts`)
 - `src/components/`: reusable `.astro` components
