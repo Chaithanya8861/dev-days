@@ -24,6 +24,50 @@ test.describe('Game Listing and Navigation', () => {
     });
   });
 
+  test('should filter games by category and publisher', async ({ page }) => {
+    await page.goto('/');
+
+    const categoryFilter = page.locator('input[name="category"]').first();
+    const publisherFilter = page.locator('input[name="publisher"]:not([value=""])').first();
+    const categoryId = await categoryFilter.inputValue();
+    const publisherId = await publisherFilter.inputValue();
+
+    await test.step('Apply a category filter', async () => {
+      await categoryFilter.check();
+      await expect(page).toHaveURL(new RegExp(`[?&]category=${categoryId}(&|$)`));
+      const visibleCards = page.locator('[data-testid="game-card"]:visible');
+      await expect(visibleCards).not.toHaveCount(0);
+      await expect(page.locator(`[data-testid="game-card"]:visible[data-category-id="${categoryId}"]`))
+        .toHaveCount(await visibleCards.count());
+    });
+
+    await test.step('Combine the category and publisher filters', async () => {
+      await publisherFilter.check();
+      await expect(page).toHaveURL(new RegExp(`[?&]category=${categoryId}.*publisher=${publisherId}`));
+      const visibleCards = page.locator('[data-testid="game-card"]:visible');
+      await expect(visibleCards).not.toHaveCount(0);
+      await expect(page.locator(`[data-testid="game-card"]:visible[data-category-id="${categoryId}"]`))
+        .toHaveCount(await visibleCards.count());
+      await expect(page.locator(`[data-testid="game-card"]:visible[data-publisher-id="${publisherId}"]`))
+        .toHaveCount(await visibleCards.count());
+    });
+  });
+
+  test('should clear active game filters', async ({ page }) => {
+    await page.goto('/');
+
+    await page.locator('input[name="category"]').first().check();
+    await expect(page.getByTestId('clear-filters')).toBeVisible();
+    await page.getByTestId('clear-filters').click();
+
+    await expect(page).toHaveURL('/');
+    await expect(page.locator('input[name="category"]:checked')).toHaveCount(0);
+    await expect(page.locator('input[name="publisher"][value=""]:checked')).toHaveCount(1);
+    await expect(page.locator('[data-testid="game-card"]:visible')).toHaveCount(
+      await page.getByTestId('game-card').count(),
+    );
+  });
+
   test('should navigate to correct game details page when clicking on a game', async ({ page }) => {
     let gameId: string | null;
     let gameTitle: string | null;
